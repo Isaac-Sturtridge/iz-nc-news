@@ -1,9 +1,11 @@
 const express = require('express');
-const { getTopics } = require('./controllers/app.controllers');
+const { getTopics, getArticleById } = require('./controllers/app.controllers');
 const { handleRouteNotFoundError } = require('./controllers/errors.controllers');
 const app = express();
 
 app.get('/api/topics', getTopics);
+
+app.get('/api/article/:article_id', getArticleById)
 
 // must be after every other route
 app.get('*', handleRouteNotFoundError);
