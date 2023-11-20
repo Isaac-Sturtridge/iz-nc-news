@@ -3,6 +3,7 @@ const app = require('../app');
 const db = require('../db/connection')
 const seed = require('../db/seeds/seed')
 const { topicData, userData, articleData, commentData } = require('../db/data/test-data')
+const endpoints = require('../endpoints.json')
 
 afterAll(() => {
     return db.end()
@@ -29,11 +30,7 @@ describe('GET /api', () => {
         .get('/api')
         .expect(200)
         .then((response)=> {
-            const endpoints = response.body.endpoints;
-            expect(endpoints["GET /api"].description).toBe('serves up a json representation of all the available endpoints of the api');
-            expect(endpoints["GET /api"].exampleResponse.api[0]).toMatchObject({
-                'GET /api': expect.any(Object)
-            })
+            expect(response.body.endpoints).toEqual(endpoints)
         })
     });
     test('200: responds with an object that describes all endpoints available, each with a description, array of queries and object for responses', () => {
