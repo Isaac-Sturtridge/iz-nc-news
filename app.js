@@ -1,17 +1,20 @@
 const express = require('express');
-const { getEndpoints, getTopics } = require('./controllers/app.controllers');
-const { handleRouteNotFoundError } = require('./controllers/errors.controllers');
+const { getEndpoints, getTopics, getArticleById } = require('./controllers/app.controllers');
+const { handleRouteNotFoundError, handlePsqlErrors, handleCustomErrors, handleServerErrors} = require('./controllers/errors.controllers');
+
 const app = express();
 
 app.get('/api', getEndpoints)
 
 app.get('/api/topics', getTopics);
 
+app.get('/api/article/:article_id', getArticleById)
+
 // must be after every other route
 app.get('*', handleRouteNotFoundError);
 
-app.use((err, req, res, next) => {
-    res.status(500).send({msg: 'Internal Server Error'});
-})
+app.use(handlePsqlErrors)
+app.use(handleCustomErrors)
+app.use(handleServerErrors)
 
 module.exports = app;
