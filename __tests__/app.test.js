@@ -100,4 +100,13 @@ describe('GET api/articles/:article_id', () => {
             expect(response.body.msg).toBe('Not found')
         })
     });
+
+    test('400: returns bad request if article_id is not an integer', () => {
+        return request(app)
+        .get('/api/article/not_an_integer')
+        .expect(400)
+        .then((response) => {
+            expect(response.body.msg).toBe('Bad request')
+        })     
+    });
 });
