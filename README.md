@@ -1,3 +1,5 @@
 # Northcoders News API
 
-For instructions, please head over to [L2C NC News](https://l2c.northcoders.com/courses/be/nc-news).
+## ENV files info:
+
+To create local databases, *.env.test* and *.env.development* are needed. They connect to local databases **nc_news_test** and **nc_news** respectively.
