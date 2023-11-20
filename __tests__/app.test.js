@@ -105,4 +105,33 @@ describe('GET: /api/articles', () => {
             })
         })
     });
+    test('200: returns the correct comment count for each article in the list', () => {
+        // gets the comment count from the test database and attaches it to this test promise
+        return db.query(`SELECT articles.article_id, COUNT(*) AS comment_count FROM comments
+        JOIN articles ON articles.article_id = comments.article_id
+        GROUP BY articles.article_id;`)
+        .then((commentCount) => {
+            // is it bad practice to structure a comment through Promise.all in this way?
+            // can't think how else to get the db.query into the test
+            return Promise.all([commentCount, request(app)
+            .get('/api/articles')
+            .expect(200)])
+        })
+        .then((response) => {
+            // more variables than usual in order to make sense of the response here
+            const articles = response[1].body.articles
+            const arrayOfCommentCounts = response[0].rows
+            articles.forEach((article) => {
+                const currentArticleComments = arrayOfCommentCounts.find((comment_counts) => comment_counts.article_id === article.article_id)
+                console.log(currentArticleComments)
+                if(currentArticleComments) {
+                    expect(article).toMatchObject({
+                        comment_count: currentArticleComments["comment_count"]
+                    })
+                } else {
+                    expect(article.comment_count).toBe("0")
+                }
+            })
+        })
+    });
 });
