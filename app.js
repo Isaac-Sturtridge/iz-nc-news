@@ -11,7 +11,11 @@ app.get('/api/article/:article_id', getArticleById)
 app.get('*', handleRouteNotFoundError);
 
 app.use((err, req, res, next) => {
-    res.status(500).send({msg: 'Internal Server Error'});
+    if(err.status) {
+        res.status(err.status).send({msg: err.msg})
+    } else {
+        res.status(500).send({msg: 'Internal Server Error'});
+    }
 })
 
 module.exports = app;

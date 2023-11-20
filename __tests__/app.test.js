@@ -92,4 +92,12 @@ describe('GET api/articles/:article_id', () => {
             })
         })
     });
+    test('404: returns not found if valid id given but article does not exist', () => {
+        return request(app)
+        .get('/api/article/999')
+        .expect(404)
+        .then((response) => {
+            expect(response.body.msg).toBe('Not found')
+        })
+    });
 });
