@@ -73,4 +73,23 @@ describe('GET api/articles/:article_id', () => {
             })
         })
     });
+    test('200: responds correctly with a random article', () => {
+        const randomId = Math.ceil(Math.random() * 13)
+        return request(app)
+        .get(`/api/article/${randomId}`)
+        .expect(200)
+        .then((response) => {
+            const article = response.body.article
+            expect(article).toMatchObject({
+                author: expect.any(String),
+                title: expect.any(String),
+                article_id: randomId,
+                body: expect.any(String),
+                topic: expect.any(String),
+                created_at: expect.any(String),
+                votes: expect.any(Number),
+                article_img_url: expect.any(String)
+            })
+        })
+    });
 });
