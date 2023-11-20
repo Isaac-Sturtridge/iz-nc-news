@@ -12,6 +12,17 @@ beforeEach(() => {
     return seed({ topicData, userData, articleData, commentData })
 })
 
+describe('General errors', () => {
+    test('404: returns a not found for any route that is not defined', () => {
+        return request(app)
+        .get('/api/not-a-route')
+        .expect(404)
+        .then((response) => {
+            expect(response.body.msg).toBe('Not found');
+        })
+    })
+});
+
 
 describe('GET api/topics', () => {
     test('200: returns a 200 status code', () => {
@@ -24,7 +35,7 @@ describe('GET api/topics', () => {
         .get('/api/topics')
         .expect(200)
         .then((response) => {
-            expect(response.body.length).toBe(3)
+            expect(response.body.length).toBe(3);
         })
     });
     test('200: returns a list of topics that match the test data', () => {
