@@ -1,7 +1,9 @@
 const express = require('express');
-const { getTopics } = require('./controllers/app.controllers');
+const { getEndpoints, getTopics } = require('./controllers/app.controllers');
 const { handleRouteNotFoundError } = require('./controllers/errors.controllers');
 const app = express();
+
+app.get('/api', getEndpoints)
 
 app.get('/api/topics', getTopics);
 
