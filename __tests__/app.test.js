@@ -35,7 +35,7 @@ describe('GET api/topics', () => {
         .get('/api/topics')
         .expect(200)
         .then((response) => {
-            expect(response.body.length).toBe(3);
+            expect(response.body.topics.length).toBe(3);
         })
     });
     test('200: returns a list of topics that match the test data', () => {
@@ -43,7 +43,7 @@ describe('GET api/topics', () => {
         .get('/api/topics')
         .expect(200)
         .then((response) => {
-            const topics = response.body
+            const topics = response.body.topics
             topics.forEach((topic) => {
                 expect(topic).toMatchObject({
                     description: expect.any(String),
