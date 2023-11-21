@@ -182,14 +182,6 @@ describe('GET /api/articles/:article_id/comments', () => {
             expect(comments).toBeSortedBy('created_at', {descending: true})
         })
     });
-    test('404: returns not found when the article does not exist', () => {
-        return request(app)
-        .get('/api/article/100/comments')
-        .expect(404)
-        .then((response) => {
-            expect(response.body.msg).toBe('not found')
-        })
-    });
     test('200: returns an empty array when the article has no comments', () => {
         return request(app)
         .get('/api/article/4/comments')
@@ -197,6 +189,22 @@ describe('GET /api/articles/:article_id/comments', () => {
         .then((response) => {
             const comments = response.body.comments
             expect(comments).toEqual([])
+        })
+    });
+    test('404: returns not found when the article does not exist', () => {
+        return request(app)
+        .get('/api/article/100/comments')
+        .expect(404)
+        .then((response) => {
+            expect(response.body.msg).toBe('Not found')
+        })
+    });
+    test('400: returns bad request when article_id is not an integer ', () => {
+        return request(app)
+        .get('/api/article/not_integer/comments')
+        .expect(400)
+        .then((response) => {
+            expect(response.body.msg).toBe('Bad request')
         })
     });
 }); 
