@@ -161,4 +161,25 @@ describe('GET /api/articles/:article_id/comments', () => {
             })
         })
     });
+    test('200: returns a random articles\' comments', () => {
+        const randomId = Math.ceil(Math.random() * 13)
+        return request(app)
+        .get(`/api/article/${randomId}/comments`)
+        .expect(200)
+        .then((response) => {
+            const comments = response.body.comments
+            comments.forEach((comment) => {
+                expect(comment.article_id).toBe(randomId)
+            })
+        })
+    });
+    test('200: returns the most recent comments first', () => {
+        return request(app)
+        .get('/api/article/1/comments')
+        .expect(200)
+        .then((response) => {
+            const comments = response.body.comments
+            expect(comments).toBeSortedBy('created_at', {descending: true})
+        })
+    });
 }); 
