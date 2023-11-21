@@ -125,16 +125,14 @@ describe("GET: /api/articles", () => {
             (comment_counts) => comment_counts.article_id === article.article_id
           );
           if (currentArticleComments) {
-            expect(article).toMatchObject({
-              comment_count: currentArticleComments["comment_count"],
-            });
+            expect(article.comment_count).toBe(currentArticleComments["comment_count"]);
           } else {
             expect(article.comment_count).toBe("0");
           }
         });
       });
   });
-  test("200: the articles are sorted by date in descending order", () => {
+  test("200: the articles are sorted by date in descending order by default", () => {
     return request(app)
         .get("/api/articles")
         .expect(200)
@@ -154,4 +152,5 @@ describe("GET: /api/articles", () => {
             })
         })
   });
+  // errors should only occur with this endpoint when we have queries (later tasks)
 });
