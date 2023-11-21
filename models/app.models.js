@@ -42,6 +42,9 @@ exports.selectArticleById = (id) => {
 
 exports.insertComment = (commentToAdd, id) => {
     const {body, username} = commentToAdd
+    if(!body) {
+        return Promise.reject({status: 400, msg: 'Bad request'})
+    }
     return db.query(`INSERT INTO comments
     (body, votes, author, article_id)
     VALUES

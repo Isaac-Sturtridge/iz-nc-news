@@ -235,4 +235,57 @@ describe('POST /api/articles/:article_id/comments', () => {
       })
     })
   });
+  test('404: tries to post a comment to an article that does not exist', () => {
+    const input = {
+      username: "lurker",
+      body: "I don't know how but they found me"
+    }
+    return request(app)
+    .post('/api/articles/999/comments')
+    .send(input)
+    .expect(404)
+    .then((response) => {
+      expect(response.body.msg).toBe("Not found")
+    })
+  });
+  test('400: tries to post a comment to an article_id that cannot be an id', () => {
+    const input = {
+      username: "lurker",
+      body: "I don't know how but they found me"
+    }
+    return request(app)
+    .post('/api/articles/not_an_id/comments')
+    .send(input)
+    .expect(400)
+    .then((response) => {
+      expect(response.body.msg).toBe("Bad request")
+    })
+  });
+  test('404: the username does not exist in the database', () => {
+    const input = {
+      username: "bad_user",
+      body: "I don't know how but they found me"
+    }
+    return request(app)
+    .post('/api/articles/1/comments')
+    .send(input)
+    .expect(404)
+    .then((response) => {
+      expect(response.body.msg).toBe("Not found")
+    })
+  });
+  // most comment boxes I know about do not allow an empty post which is why this error
+  test('400: does not allow posting an empty comment', () => {
+    const input = {
+      username: "lurker",
+      body: ""
+    }
+    return request(app)
+    .post('/api/articles/1/comments')
+    .send(input)
+    .expect(400)
+    .then((response) => {
+      expect(response.body.msg).toBe('Bad request')
+    })
+  });
 });
