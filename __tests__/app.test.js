@@ -111,7 +111,6 @@ describe("GET: /api/articles", () => {
       .get("/api/articles")
       .expect(200)
       .then((response) => {
-        // more variables than usual in order to make sense of the response here
         const articles = response.body.articles;
         // hardcoded from a query to the test database, this won't change as tests are built up
         const arrayOfCommentCounts = [
@@ -134,5 +133,25 @@ describe("GET: /api/articles", () => {
           }
         });
       });
+  });
+  test("200: the articles are sorted by date in descending order", () => {
+    return request(app)
+        .get("/api/articles")
+        .expect(200)
+        .then((response) => {
+            const articles = response.body.articles
+            expect(articles).toBeSortedBy('created_at', {descending: true})
+        })
+  });
+  test('200: the articles do not have a body property', () => {
+    return request(app)
+        .get("/api/articles")
+        .expect(200)
+        .then((response) => {
+            const articles = response.body.articles
+            articles.forEach((article) => {
+                expect(article.hasOwnProperty("body")).toBe(false)
+            })
+        })
   });
 });
