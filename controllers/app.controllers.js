@@ -24,7 +24,7 @@ exports.getArticleById = (req, res, next) => {
 }
 
 exports.getArticleComments = (req, res, next) => {
-    const id = req.params["article_id"]
+    const id = req.params.article_id
 
     const allPromises = [selectArticleComments(id), checkIfArticleExists(id)]
 
