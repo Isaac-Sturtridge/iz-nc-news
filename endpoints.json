@@ -34,6 +34,28 @@
       ]
     }
   },
+  "GET /api/articles/:article_id/comments": {
+    "description": "serves an array of all comments for the given article",
+    "queries": [],
+    "exampleResponse": {
+      "comments": [
+        {
+          "body": "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+          "votes": 16,
+          "author": "butter_bridge",
+          "article_id": 9,
+          "created_at": 1586179020000
+        },
+        {
+          "body": "The owls are not what they seem.",
+          "votes": 20,
+          "author": "icellusedkars",
+          "article_id": 9,
+          "created_at": 1584205320000
+        }
+      ]
+    }
+  },
   "POST /api/articles/:article_id/comments": {
     "description": "posts a new comment to the specified article",
     "queries": [],
