@@ -1,4 +1,4 @@
-const { selectTopics, selectEndpoints, selectArticleById } = require("../models/app.models")
+const { selectTopics, selectEndpoints, selectArticleById, selectArticleComments } = require("../models/app.models")
 
 exports.getEndpoints = (req, res, next) => {
     const endpoints = selectEndpoints();
@@ -16,4 +16,11 @@ exports.getArticleById = (req, res, next) => {
     selectArticleById(id).then((article) => {
         return res.status(200).send({article})
     }).catch(next)
+}
+
+exports.getArticleComments = (req, res, next) => {
+    const id = req.params["article_id"]
+    selectArticleComments(id).then((comments) => {
+        return res.status(200).send({comments})
+    })
 }
