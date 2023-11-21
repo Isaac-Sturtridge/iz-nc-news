@@ -38,7 +38,7 @@
     "description": "posts a new comment to the specified article",
     "queries": [],
     "exampleResponse": {
-      "comment": [
+      "comments": [
         {
           "body": "I don't know how but they found me",
           "votes": 0,
