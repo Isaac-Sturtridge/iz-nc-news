@@ -212,3 +212,27 @@ describe('GET api/articles/:article_id', () => {
         })     
     });
 });
+
+
+describe('POST /api/articles/:article_id/comments', () => {
+  test('201: successfully adds a new comment to the specified article', () => {
+    const input = {
+      username: "lurker",
+      body: "I don't know how but they found me"
+    }
+    return request(app)
+    .post('/api/articles/1/comments')
+    .send(input)
+    .expect(201)
+    .then((response) => {
+      const comment = response.body.comment
+      expect(comment).toMatchObject({
+        body: "I don't know how but they found me",
+        votes: 0,
+        article_id: 1,
+        created_at: expect.any(String),
+        author: "lurker"
+      })
+    })
+  });
+});
