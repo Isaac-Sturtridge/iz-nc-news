@@ -490,4 +490,5 @@ describe('GET: /api/users', () => {
       })
     })
   });
+  // as with GET articles, errors should only occur once we have queries
 });
