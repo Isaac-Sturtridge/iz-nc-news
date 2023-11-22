@@ -357,5 +357,18 @@ describe('POST /api/articles/:article_id/comments', () => {
       expect(response.body.msg).toBe('Bad request')
     })
   });
-  // extra test comment
+  test('400: does not allow excess keys in the request body', () => {
+    const input = {
+      username: "lurker",
+      body: "bad comment",
+      bad_key: "bad_key"
+    }
+    return request(app)
+    .post('/api/articles/1/comments')
+    .send(input)
+    .expect(400)
+    .then((response) => {
+      expect(response.body.msg).toBe('Bad request')
+    })
+  });
 });

@@ -59,7 +59,7 @@ exports.checkIfArticleExists = (id) => {
 
 exports.insertComment = (commentToAdd, id) => {
     const {body, username} = commentToAdd
-    if(!body) {
+    if(!body || Object.keys(commentToAdd).length !== 2) {
         return Promise.reject({status: 400, msg: 'Bad request'})
     }
     return db.query(`INSERT INTO comments
