@@ -308,4 +308,42 @@ describe('PATCH: /api/articles/:article_id', () => {
       expect(article.votes).toBe(0)
     })
   });
+  // no error if votes go below zero
+  test('404: article is a valid input but does not exist', () => {
+    const updatedArticle = {
+      inc_votes: 1
+    }
+    return request(app)
+    .patch('/api/articles/999')
+    .send(updatedArticle)
+    .expect(404)
+    .then((response) => {
+      expect(response.body.msg).toBe('Not found')
+    })
+  });
+  test('400: article is not a valid input', () => {
+    const updatedArticle = {
+      inc_votes: 1
+    }
+    return request(app)
+    .patch('/api/articles/not_integer')
+    .send(updatedArticle)
+    .expect(400)
+    .then((response) => {
+      expect(response.body.msg).toBe('Bad request')
+    })
+  });
+  // invalid inc_votes 
+  test('400: inc_votes is in an invalid format', () => {
+    const updatedArticle = {
+      inc_votes: 'cat'
+    }
+    return request(app)
+    .patch('/api/articles/1')
+    .send(updatedArticle)
+    .expect(400)
+    .then((response) => {
+      expect(response.body.msg).toBe('Bad request')
+    })
+  });
 });

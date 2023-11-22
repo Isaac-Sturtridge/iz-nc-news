@@ -63,6 +63,9 @@ exports.updateArticle = (votes, id) => {
     WHERE article_id = $2
     RETURNING *`, [votes, id])
     .then((result) => {
+        if(result.rowCount === 0) {
+            return Promise.reject({status: 404, msg: 'Not found'})
+        }
         return result.rows[0]
     })
 }
