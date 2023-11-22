@@ -213,70 +213,162 @@ describe('GET api/articles/:article_id', () => {
     });
 });
 
+
 describe('GET /api/articles/:article_id/comments', () => {
-    test('200: responds with all of the comments for a single article', () => {
-        return request(app)
-        .get('/api/article/1/comments')
-        .expect(200)
-        .then((response) => {
-            const comments = response.body.comments
-            expect(comments.length).toBe(11)
-            comments.forEach((comment) => {
-                expect(comment).toMatchObject({
-                    comment_id: expect.any(Number),
-                    votes: expect.any(Number),
-                    created_at: expect.any(String),
-                    author: expect.any(String),
-                    body: expect.any(String),
-                    article_id: 1
-                })
-            })
-        })
-    });
-    test('200: returns a random articles\' comments', () => {
-        const randomId = Math.ceil(Math.random() * 13)
-        return request(app)
-        .get(`/api/article/${randomId}/comments`)
-        .expect(200)
-        .then((response) => {
-            const comments = response.body.comments
-            comments.forEach((comment) => {
-                expect(comment.article_id).toBe(randomId)
-            })
-        })
-    });
-    test('200: returns the most recent comments first', () => {
-        return request(app)
-        .get('/api/article/1/comments')
-        .expect(200)
-        .then((response) => {
-            const comments = response.body.comments
-            expect(comments).toBeSortedBy('created_at', {descending: true})
-        })
-    });
-    test('200: returns an empty array when the article has no comments', () => {
-        return request(app)
-        .get('/api/article/4/comments')
-        .expect(200)
-        .then((response) => {
-            const comments = response.body.comments
-            expect(comments).toEqual([])
-        })
-    });
-    test('404: returns not found when the article does not exist', () => {
-        return request(app)
-        .get('/api/article/100/comments')
-        .expect(404)
-        .then((response) => {
-            expect(response.body.msg).toBe('Not found')
-        })
-    });
-    test('400: returns bad request when article_id is not an integer ', () => {
-        return request(app)
-        .get('/api/article/not_integer/comments')
-        .expect(400)
-        .then((response) => {
-            expect(response.body.msg).toBe('Bad request')
-        })
-    });
+  test('200: responds with all of the comments for a single article', () => {
+      return request(app)
+      .get('/api/article/1/comments')
+      .expect(200)
+      .then((response) => {
+          const comments = response.body.comments
+          expect(comments.length).toBe(11)
+          comments.forEach((comment) => {
+              expect(comment).toMatchObject({
+                  comment_id: expect.any(Number),
+                  votes: expect.any(Number),
+                  created_at: expect.any(String),
+                  author: expect.any(String),
+                  body: expect.any(String),
+                  article_id: 1
+              })
+          })
+      })
+  });
+  test('200: returns a random articles\' comments', () => {
+      const randomId = Math.ceil(Math.random() * 13)
+      return request(app)
+      .get(`/api/article/${randomId}/comments`)
+      .expect(200)
+      .then((response) => {
+          const comments = response.body.comments
+          comments.forEach((comment) => {
+              expect(comment.article_id).toBe(randomId)
+          })
+      })
+  });
+  test('200: returns the most recent comments first', () => {
+      return request(app)
+      .get('/api/article/1/comments')
+      .expect(200)
+      .then((response) => {
+          const comments = response.body.comments
+          expect(comments).toBeSortedBy('created_at', {descending: true})
+      })
+  });
+  test('200: returns an empty array when the article has no comments', () => {
+      return request(app)
+      .get('/api/article/4/comments')
+      .expect(200)
+      .then((response) => {
+          const comments = response.body.comments
+          expect(comments).toEqual([])
+      })
+  });
+  test('404: returns not found when the article does not exist', () => {
+      return request(app)
+      .get('/api/article/100/comments')
+      .expect(404)
+      .then((response) => {
+          expect(response.body.msg).toBe('Not found')
+      })
+  });
+  test('400: returns bad request when article_id is not an integer ', () => {
+      return request(app)
+      .get('/api/article/not_integer/comments')
+      .expect(400)
+      .then((response) => {
+          expect(response.body.msg).toBe('Bad request')
+      })
+  });
 }); 
+
+
+describe('POST /api/articles/:article_id/comments', () => {
+  test('201: successfully adds a new comment to the specified article', () => {
+    const input = {
+      username: "lurker",
+      body: "I don't know how but they found me"
+    }
+    return request(app)
+    .post('/api/articles/1/comments')
+    .send(input)
+    .expect(201)
+    .then((response) => {
+      const comment = response.body.comment
+      expect(comment).toMatchObject({
+        body: "I don't know how but they found me",
+        votes: 0,
+        article_id: 1,
+        created_at: expect.any(String),
+        author: "lurker"
+      })
+    })
+  });
+  test('404: tries to post a comment to an article that does not exist', () => {
+    const input = {
+      username: "lurker",
+      body: "I don't know how but they found me"
+    }
+    return request(app)
+    .post('/api/articles/999/comments')
+    .send(input)
+    .expect(404)
+    .then((response) => {
+      expect(response.body.msg).toBe("Not found")
+    })
+  });
+  test('400: tries to post a comment to an article_id that cannot be an id', () => {
+    const input = {
+      username: "lurker",
+      body: "I don't know how but they found me"
+    }
+    return request(app)
+    .post('/api/articles/not_an_id/comments')
+    .send(input)
+    .expect(400)
+    .then((response) => {
+      expect(response.body.msg).toBe("Bad request")
+    })
+  });
+  test('404: the username does not exist in the database', () => {
+    const input = {
+      username: "bad_user",
+      body: "I don't know how but they found me"
+    }
+    return request(app)
+    .post('/api/articles/1/comments')
+    .send(input)
+    .expect(404)
+    .then((response) => {
+      expect(response.body.msg).toBe("Not found")
+    })
+  });
+  // most comment boxes I know about do not allow an empty post which is why this error
+  test('400: does not allow posting an empty comment', () => {
+    const input = {
+      username: "lurker",
+      body: ""
+    }
+    return request(app)
+    .post('/api/articles/1/comments')
+    .send(input)
+    .expect(400)
+    .then((response) => {
+      expect(response.body.msg).toBe('Bad request')
+    })
+  });
+  test('400: does not allow excess keys in the request body', () => {
+    const input = {
+      username: "lurker",
+      body: "bad comment",
+      bad_key: "bad_key"
+    }
+    return request(app)
+    .post('/api/articles/1/comments')
+    .send(input)
+    .expect(400)
+    .then((response) => {
+      expect(response.body.msg).toBe('Bad request')
+    })
+  });
+});
