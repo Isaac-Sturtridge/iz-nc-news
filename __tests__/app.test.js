@@ -455,4 +455,20 @@ describe('DELETE: /api/comments/:comment_id', () => {
     .delete('/api/comments/1')
     .expect(204)
   });
+  test('404: the comment is a valid id but it does not exist', () => {
+    return request(app)
+    .delete('/api/comments/999')
+    .expect(404)
+    .then((response) => {
+      expect(response.body.msg).toBe('Not found')
+    })
+  });
+  test('400: should respond with a bad request when the comment is not a valid id', () => {
+    return request(app)
+    .delete('/api/comments/bad_comment_id')
+    .expect(400)
+    .then((response) => {
+      expect(response.body.msg).toBe('Bad request')
+    })
+  });
 });

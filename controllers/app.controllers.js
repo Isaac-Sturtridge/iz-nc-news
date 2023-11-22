@@ -1,4 +1,4 @@
-const { selectTopics, selectEndpoints, selectArticleById, selectArticleComments, checkIfArticleExists, selectArticles, insertComment, updateArticle, removeComment } = require("../models/app.models")
+const { selectTopics, selectEndpoints, selectArticleById, selectArticleComments, checkIfArticleExists, selectArticles, insertComment, updateArticle, removeComment, checkIfCommentExists } = require("../models/app.models")
 
 exports.getEndpoints = (req, res, next) => {
     const endpoints = selectEndpoints();
@@ -51,8 +51,11 @@ exports.patchArticleById = (req, res, next) => {
 }
 
 exports.deleteCommentById = (req, res, next) => {
-    const id = req.params.article_id
-    removeComment(id).then(() => {
+    const id = req.params.comment_id
+    
+    const allPromises = [removeComment(id), checkIfCommentExists(id)]
+
+    Promise.all(allPromises).then(() => {
         return res.status(204).send()
-    })
+    }).catch(next)
 }
