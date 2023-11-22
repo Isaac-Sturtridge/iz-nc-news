@@ -56,3 +56,13 @@ exports.checkIfArticleExists = (id) => {
         }
     })
 }
+
+exports.updateArticle = (votes, id) => {
+    return db.query(`UPDATE articles
+    SET votes = votes + $1
+    WHERE article_id = $2
+    RETURNING *`, [votes, id])
+    .then((result) => {
+        return result.rows[0]
+    })
+}

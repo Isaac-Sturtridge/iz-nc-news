@@ -280,3 +280,32 @@ describe('GET /api/articles/:article_id/comments', () => {
         })
     });
 }); 
+
+describe('PATCH: /api/articles/:article_id', () => {
+  test('200: should update an article and return the updated article with the new number of votes', () => {
+    const updatedArticle = {
+      inc_votes: 1
+    }
+    return request(app)
+    .patch('/api/articles/1')
+    .send(updatedArticle)
+    .expect(200)
+    .then((response) => {
+      const article = response.body.article
+      expect(article.votes).toBe(101)
+    })
+  });
+  test('200: can also decrement votes', () => {
+    const updatedArticle = {
+      inc_votes: -100
+    }
+    return request(app)
+    .patch('/api/articles/1')
+    .send(updatedArticle)
+    .expect(200)
+    .then((response) => {
+      const article = response.body.article
+      expect(article.votes).toBe(0)
+    })
+  });
+});
