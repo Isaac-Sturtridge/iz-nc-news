@@ -12,7 +12,9 @@ exports.getTopics = (req, res, next) => {
 }
 
 exports.getArticles = (req, res, next) => {
-    selectArticles().then((articles) => {
+    const {topic} = req.query
+
+    selectArticles(topic).then((articles) => {
         return res.status(200).send({articles})
     })
 }

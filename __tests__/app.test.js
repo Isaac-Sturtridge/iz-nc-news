@@ -153,7 +153,20 @@ describe("GET: /api/articles", () => {
             })
         })
   });
-  // errors should only occur with this endpoint when we have queries (later tasks)
+  describe('Tests for topic query', () => {
+    test('200: The endpoint accepts a query of topic and filters the list by the selected topic', () => {
+      return request(app)
+      .get("/api/articles?topic=mitch")
+      .expect(200)
+      .then((response) => {
+        const articles = response.body.articles
+        expect(articles.length).toBe(12)
+        articles.forEach((article) => {
+          expect(article.topic).toBe('mitch')
+        })
+      })
+    });
+  });
 });
 
 describe('GET api/articles/:article_id', () => {

@@ -11,22 +11,20 @@ exports.selectTopics = () => {
     })
 }
 
-exports.selectArticles = () => {
-    return db.query(`SELECT 
-    articles.author, 
-    articles.title, 
-    articles.article_id,
-    articles.topic,
-    articles.created_at,
-    articles.votes,
-    articles.article_img_url,
-    COUNT(comments.article_id) as comment_count
-    FROM articles
-    LEFT JOIN comments 
-    ON articles.article_id = comments.article_id
-    GROUP BY 
-    articles.article_id
-    ORDER BY articles.created_at DESC;`).then((result) => {
+exports.selectArticles = (topic) => {
+    let queryString = 'SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url, '
+    queryString += 'COUNT(comments.article_id) as comment_count '
+    queryString += 'FROM articles '
+    queryString += 'LEFT JOIN comments ON articles.article_id = comments.article_id '
+    const queryValues = []
+    
+    if(topic) {
+        queryString += 'WHERE topic = $1 '
+        queryValues.push(topic)
+    }
+
+    queryString += 'GROUP BY articles.article_id ORDER BY articles.created_at DESC;'
+    return db.query(queryString, queryValues).then((result) => {
         return result.rows
     })
 }
