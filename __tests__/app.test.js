@@ -166,6 +166,23 @@ describe("GET: /api/articles", () => {
         })
       })
     });
+    test('200: should return an empty list when given a topic that has no articles', () => {
+      return request(app)
+      .get("/api/articles?topic=paper")
+      .expect(200)
+      .then((response) => {
+        const articles = response.body.articles
+        expect(articles.length).toBe(0)
+      })
+    });
+    test('404: should return not found when given a topic that does not exist', () => {
+      return request(app)
+      .get("/api/articles?topic=unobtainium")
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe("Not found")
+      })
+    });
   });
 });
 

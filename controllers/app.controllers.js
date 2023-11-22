@@ -1,4 +1,5 @@
-const { selectTopics, selectEndpoints, selectArticleById, selectArticleComments, checkIfArticleExists, selectArticles, insertComment, updateArticle, removeComment, checkIfCommentExists } = require("../models/app.models")
+const { selectTopics, selectEndpoints, selectArticleById, selectArticleComments, checkIfArticleExists, selectArticles, insertComment, updateArticle, removeComment, checkIfCommentExists } = require("../models/app.models");
+const { checkIfTopicExists } = require("../models/topics.models");
 
 exports.getEndpoints = (req, res, next) => {
     const endpoints = selectEndpoints();
@@ -12,12 +13,19 @@ exports.getTopics = (req, res, next) => {
 }
 
 exports.getArticles = (req, res, next) => {
-    const {topic} = req.query
+    const topic = req.query.topic
+    const allPromises = [selectArticles(topic)]
 
-    selectArticles(topic).then((articles) => {
+    if(topic) {
+        allPromises.push(checkIfTopicExists(topic))
+    }
+
+    Promise.all(allPromises).then((result) => {
+        const articles = result[0]
         return res.status(200).send({articles})
-    })
+    }).catch(next)
 }
+
 exports.getArticleById = (req, res, next) => {
     const id = req.params["article_id"]
     selectArticleById(id).then((article) => {

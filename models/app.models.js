@@ -17,7 +17,7 @@ exports.selectArticles = (topic) => {
     queryString += 'FROM articles '
     queryString += 'LEFT JOIN comments ON articles.article_id = comments.article_id '
     const queryValues = []
-    
+
     if(topic) {
         queryString += 'WHERE topic = $1 '
         queryValues.push(topic)
