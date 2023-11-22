@@ -57,6 +57,21 @@ exports.checkIfArticleExists = (id) => {
     })
 }
 
+exports.insertComment = (commentToAdd, id) => {
+    const {body, username} = commentToAdd
+    if(!body || Object.keys(commentToAdd).length !== 2) {
+        return Promise.reject({status: 400, msg: 'Bad request'})
+    }
+    return db.query(`INSERT INTO comments
+    (body, votes, author, article_id)
+    VALUES
+    ($1, 0, $2, $3)
+    RETURNING *;`, [body, username, id])
+    .then((result) => {
+        return result.rows[0]
+    })
+}
+
 exports.updateArticle = (votes, id) => {
     return db.query(`UPDATE articles
     SET votes = votes + $1
