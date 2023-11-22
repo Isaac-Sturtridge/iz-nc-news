@@ -1,5 +1,5 @@
 const express = require('express');
-const { getEndpoints, getTopics, getArticleById, getArticleComments, getArticles, postComment } = require('./controllers/app.controllers');
+const { getEndpoints, getTopics, getArticleById, getArticleComments, getArticles, postComment, patchArticleById } = require('./controllers/app.controllers');
 const { handleRouteNotFoundError, handlePsqlErrors, handleCustomErrors, handleServerErrors} = require('./controllers/errors.controllers');
 
 const app = express();
@@ -17,6 +17,8 @@ app.get('/api/article/:article_id', getArticleById)
 app.get('/api/article/:article_id/comments', getArticleComments)
 
 app.post('/api/articles/:article_id/comments', postComment)
+
+app.patch('/api/articles/:article_id', patchArticleById)
 
 // must be after every other route
 app.get('*', handleRouteNotFoundError);

@@ -71,3 +71,16 @@ exports.insertComment = (commentToAdd, id) => {
         return result.rows[0]
     })
 }
+
+exports.updateArticle = (votes, id) => {
+    return db.query(`UPDATE articles
+    SET votes = votes + $1
+    WHERE article_id = $2
+    RETURNING *`, [votes, id])
+    .then((result) => {
+        if(result.rowCount === 0) {
+            return Promise.reject({status: 404, msg: 'Not found'})
+        }
+        return result.rows[0]
+    })
+}
