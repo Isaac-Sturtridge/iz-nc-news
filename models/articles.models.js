@@ -63,6 +63,8 @@ exports.insertArticle = (newArticle) => {
     if(newArticle.article_img_url) {
         article_img_url = newArticle.article_img_url
     }
+    
+    // TODO: create a function that will more robustly test whether article_img_url is a valid image url
     const acceptableImageFormats = ['.jpeg', '.png', '.jpg', '.svg']
     let okayImage = false
     acceptableImageFormats.forEach((imgFormat) => {
