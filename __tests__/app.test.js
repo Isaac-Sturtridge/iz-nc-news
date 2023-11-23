@@ -162,7 +162,15 @@ describe("GET: /api/articles", () => {
         const articles = response.body.articles
         expect(articles.length).toBe(12)
         articles.forEach((article) => {
-          expect(article.topic).toBe('mitch')
+          expect(article).toMatchObject({
+            author: expect.any(String),
+            title: expect.any(String),
+            article_id: expect.any(Number),
+            topic: 'mitch',
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            article_img_url: expect.any(String),
+          });
         })
       })
     });
