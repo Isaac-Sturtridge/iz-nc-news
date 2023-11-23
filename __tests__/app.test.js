@@ -192,6 +192,17 @@ describe("GET: /api/articles", () => {
       })
     });
   });
+  describe('Tests for sort_by and order query', () => {
+    test('200: The endpoint accepts a query of sort_by and returns articles sorted by the desired column ', () => {
+      return request(app)
+      .get("/api/articles?sort_by=author")
+      .expect(200)
+      .then((response) => {
+        const articles = response.body.articles;
+        expect(articles).toBeSortedBy('author', {descending: true})
+      })
+    });
+  });
 });
 
 describe('GET api/articles/:article_id', () => {
