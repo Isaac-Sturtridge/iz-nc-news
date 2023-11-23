@@ -1,13 +1,14 @@
 const express = require('express');
-const { getEndpoints, getTopics, getArticleById, getArticleComments, getArticles, postComment, patchArticleById, deleteCommentById } = require('./controllers/app.controllers');
+const { getTopics, getArticleById, getArticleComments, getArticles, postComment, patchArticleById, deleteCommentById } = require('./controllers/app.controllers');
 const { handleRouteNotFoundError, handlePsqlErrors, handleCustomErrors, handleServerErrors} = require('./controllers/errors.controllers');
 const { getUsers } = require('./controllers/users.controllers');
+const apiRouter = require('./routers/api-router');
 
 const app = express();
 
 app.use(express.json())
 
-app.get('/api', getEndpoints)
+app.use('/api', apiRouter)
 
 app.get('/api/topics', getTopics);
 
