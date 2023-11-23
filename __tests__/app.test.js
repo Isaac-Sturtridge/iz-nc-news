@@ -622,3 +622,19 @@ describe('GET: /api/users', () => {
   });
   // as with GET articles, errors should only occur once we have queries
 });
+
+describe('GET: /api/users/:username', () => {
+  test('200: returns a complete username object', () => {
+    return request(app)
+    .get('/api/users/icellusedkars')
+    .expect(200)
+    .then((response) => {
+      const user = response.body.user
+      expect(user).toMatchObject({
+        username: 'icellusedkars',
+        name: 'sam',
+        avatar_url: 'https://avatars2.githubusercontent.com/u/24604688?s=460&v=4'
+      })
+    })
+  });
+});
