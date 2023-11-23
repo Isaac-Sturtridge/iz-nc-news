@@ -22,7 +22,10 @@ exports.patchComment = (req, res, next) => {
     const id = req.params.comment_id
     const inc_votes = req.body.inc_votes
 
-    updateComment(inc_votes, id).then((comment) => {
+    const allPromises = [updateComment(inc_votes, id), checkIfCommentExists(id)]
+
+    Promise.all(allPromises).then((result) => {
+        const comment = result[0]
         return res.status(200).send({comment})
-    })
+    }).catch(next)
 }
