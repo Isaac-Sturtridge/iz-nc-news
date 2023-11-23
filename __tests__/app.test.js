@@ -220,6 +220,15 @@ describe('GET api/articles/:article_id', () => {
         expect(article.comment_count).toBe(11)
       })
     });
+    test('200: returns the comment count for an article with 0 comments', () => {
+      return request(app)
+      .get(`/api/articles/4`)
+      .expect(200)
+      .then((response) => {
+        const article = response.body.article
+        expect(article.comment_count).toBe(0)
+      })
+    });
 });
 
 
