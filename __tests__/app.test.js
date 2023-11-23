@@ -202,6 +202,22 @@ describe("GET: /api/articles", () => {
         expect(articles).toBeSortedBy('author', {descending: true})
       })
     });
+    test('400: should reject any sort_by queries that are not existing columns', () => {
+      return request(app)
+      .get("/api/articles?sort_by=bad_column")
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe('Bad request')
+      })
+    });
+    test('400: rejects SQL injection of sort_by', () => {
+      return request(app)
+      .get("/api/articles?sort_by=author;SELECT * FROM articles;")
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe('Bad request')
+      })
+    });
   });
 });
 

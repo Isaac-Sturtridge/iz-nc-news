@@ -15,6 +15,10 @@ exports.getTopics = (req, res, next) => {
 exports.getArticles = (req, res, next) => {
     const topic = req.query.topic
     const sortBy = req.query.sort_by
+    const sortByWhitelist = ["article_id", "title", "topic", "author", "body", "created_at", "votes", "article_img_url"]
+    if(sortBy && !sortByWhitelist.includes(sortBy)) {
+        return res.status(400).send({msg: 'Bad request'})
+    }
     const allPromises = [selectArticles(topic, sortBy)]
 
     if(topic) {
