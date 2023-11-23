@@ -10,5 +10,5 @@ exports.getUserByUsername = (req, res, next) => {
     const username = req.params.username
     selectUserByUsername(username).then((user) => {
         return res.status(200).send({user})
-    })
+    }).catch(next)
 }

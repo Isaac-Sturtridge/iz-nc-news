@@ -637,4 +637,12 @@ describe('GET: /api/users/:username', () => {
       })
     })
   });
+  test('404: returns not found when the username does not exist', () => {
+    return request(app)
+    .get('/api/users/tabularasa')
+    .expect(404)
+    .then((response) => {
+      expect(response.body.msg).toBe('Not found')
+    })
+  });
 });
