@@ -726,6 +726,7 @@ describe('POST: /api/articles', () => {
       author: "lurker",
       body: "But I just can't handle it anymore. Lurking is not using myself to my fullest potential. Cats are cute.",
       topic: "cats",
+      article_img_url: 'https://images.pexels.com/photos/1543793/pexels-photo-1543793.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
     }
     return request(app)
     .post('/api/articles')
@@ -738,7 +739,7 @@ describe('POST: /api/articles', () => {
         author: "lurker",
         body: "But I just can't handle it anymore. Lurking is not using myself to my fullest potential. Cats are cute.",
         topic: "cats",
-        article_img_url: "https://images.pexels.com/photos/97050/pexels-photo-97050.jpeg?w=700&h=700",
+        article_img_url: "https://images.pexels.com/photos/1543793/pexels-photo-1543793.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
         votes: 0,
         article_id: 14,
         created_at: expect.any(String),
@@ -774,6 +775,22 @@ describe('POST: /api/articles', () => {
     .expect(404)
     .then((response) => {
       expect(response.body.msg).toBe('Not found')
+    })
+  });
+  test('400: returns bad request if given an article_img_url that is not an image', () => {
+    const newArticle = {
+      title: "I know I'm not supposed to say anything",
+      author: "tabularasa",
+      body: "But I just can't handle it anymore. Lurking is not using myself to my fullest potential. Cats are cute.",
+      topic: "cats",
+      article_img_url: "not_an_image"
+    }
+    return request(app)
+    .post('/api/articles')
+    .send(newArticle)
+    .expect(400)
+    .then((response) => {
+      expect(response.body.msg).toBe('Bad request')
     })
   });
 });

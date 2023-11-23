@@ -59,11 +59,25 @@ exports.checkIfArticleExists = (id) => {
 
 exports.insertArticle = (newArticle) => {
     const {title, topic, author, body} = newArticle
+    let article_img_url = 'https://images.pexels.com/photos/97050/pexels-photo-97050.jpeg?w=700&h=700'
+    if(newArticle.article_img_url) {
+        article_img_url = newArticle.article_img_url
+    }
+    const acceptableImageFormats = ['.jpeg', '.png', '.jpg', '.svg']
+    let okayImage = false
+    acceptableImageFormats.forEach((imgFormat) => {
+        if(article_img_url.includes(imgFormat)) {
+            okayImage = true
+        }
+    })
+    if(!okayImage) {
+        return Promise.reject({status: 400, msg: 'Bad request'})
+    }
     return db.query(`INSERT INTO articles
-    (title, topic, author, body)
+    (title, topic, author, body, article_img_url)
     VALUES
-    ($1, $2, $3, $4)
-    RETURNING *`, [title, topic, author, body])
+    ($1, $2, $3, $4, $5)
+    RETURNING *`, [title, topic, author, body, article_img_url])
     .then((result) => {
         // all new articles will have a comment count of 0 - further requests for this statistic will use getArticleById endpoint which queries the comments table
         result.rows[0].comment_count = 0
