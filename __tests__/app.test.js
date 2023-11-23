@@ -718,3 +718,62 @@ describe('PATCH: /api/comments/:comment_id', () => {
     })
   });
 });
+
+describe('POST: /api/articles', () => {
+  test('201: successfully adds a new article', () => {
+    const newArticle = {
+      title: "I know I'm not supposed to say anything",
+      author: "lurker",
+      body: "But I just can't handle it anymore. Lurking is not using myself to my fullest potential. Cats are cute.",
+      topic: "cats",
+    }
+    return request(app)
+    .post('/api/articles')
+    .send(newArticle)
+    .expect(201)
+    .then((response) => {
+      const article = response.body.article
+      expect(article).toMatchObject({
+        title: "I know I'm not supposed to say anything",
+        author: "lurker",
+        body: "But I just can't handle it anymore. Lurking is not using myself to my fullest potential. Cats are cute.",
+        topic: "cats",
+        article_img_url: "https://images.pexels.com/photos/97050/pexels-photo-97050.jpeg?w=700&h=700",
+        votes: 0,
+        article_id: 14,
+        created_at: expect.any(String),
+        comment_count: 0
+      })
+    })
+  });
+  test('404: cannot post for an author that does not exist', () => {
+    const newArticle = {
+      title: "I know I'm not supposed to say anything",
+      author: "tabularasa",
+      body: "But I just can't handle it anymore. Lurking is not using myself to my fullest potential. Cats are cute.",
+      topic: "cats",
+    }
+    return request(app)
+    .post('/api/articles')
+    .send(newArticle)
+    .expect(404)
+    .then((response) => {
+      expect(response.body.msg).toBe('Not found')
+    })
+  });
+  test('404: cannot post to a topic that does not exist', () => {
+    const newArticle = {
+      title: "I know I'm not supposed to say anything",
+      author: "lurker",
+      body: "But I just can't handle it anymore. Lurking is not using myself to my fullest potential. Dogs are cute.",
+      topic: "dogs",
+    }
+    return request(app)
+    .post('/api/articles')
+    .send(newArticle)
+    .expect(404)
+    .then((response) => {
+      expect(response.body.msg).toBe('Not found')
+    })
+  });
+});

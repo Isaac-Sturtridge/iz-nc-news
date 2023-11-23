@@ -57,6 +57,20 @@ exports.checkIfArticleExists = (id) => {
     })
 }
 
+exports.insertArticle = (newArticle) => {
+    const {title, topic, author, body} = newArticle
+    return db.query(`INSERT INTO articles
+    (title, topic, author, body)
+    VALUES
+    ($1, $2, $3, $4)
+    RETURNING *`, [title, topic, author, body])
+    .then((result) => {
+        // all new articles will have a comment count of 0 - further requests for this statistic will use getArticleById endpoint which queries the comments table
+        result.rows[0].comment_count = 0
+        return result.rows[0]
+    })
+}
+
 exports.updateArticle = (votes, id) => {
     return db.query(`UPDATE articles
     SET votes = votes + $1
