@@ -646,3 +646,75 @@ describe('GET: /api/users/:username', () => {
     })
   });
 });
+
+
+describe('PATCH: /api/comments/:comment_id', () => {
+  test('200: should update a comment and return the updated comment with the new number of votes', () => {
+    const updatedComment = {
+      inc_votes: 1
+    }
+    return request(app)
+    .patch('/api/comments/1')
+    .send(updatedComment)
+    .expect(200)
+    .then((response) => {
+      const comment = response.body.comment
+      expect(comment).toMatchObject({
+        body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+        votes: 17,
+        author: "butter_bridge",
+        article_id: 9,
+        created_at: "2020-04-06T12:17:00.000Z",
+      })
+    })
+  });
+  test('200: should decrement comments', () => {
+    const updatedComment = {
+      inc_votes: -1
+    }
+    return request(app)
+    .patch('/api/comments/1')
+    .send(updatedComment)
+    .expect(200)
+    .then((response) => {
+      const comment = response.body.comment
+      expect(comment.votes).toBe(15)
+    })
+  });
+  test('404: comment does not exist', () => {
+    const updatedComment = {
+      inc_votes: 1
+    }
+    return request(app)
+    .patch('/api/comments/999')
+    .send(updatedComment)
+    .expect(404)
+    .then((response) => {
+      expect(response.body.msg).toBe('Not found')
+    })
+  });
+  test('400: bad comment format', () => {
+    const updatedComment = {
+      inc_votes: 1
+    }
+    return request(app)
+    .patch('/api/comments/bad_comment')
+    .send(updatedComment)
+    .expect(400)
+    .then((response) => {
+      expect(response.body.msg).toBe('Bad request')
+    })
+  });
+  test('400: inc_votes is in an invalid format', () => {
+    const updatedComment = {
+      inc_votes: 'cat'
+    }
+    return request(app)
+    .patch('/api/comments/1')
+    .send(updatedComment)
+    .expect(400)
+    .then((response) => {
+      expect(response.body.msg).toBe('Bad request')
+    })
+  });
+});
