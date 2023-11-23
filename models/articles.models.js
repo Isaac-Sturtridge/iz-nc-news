@@ -1,6 +1,6 @@
 const db = require('../db/connection')
 
-exports.selectArticles = (topic, sortBy = 'created_at', order = 'DESC') => {
+exports.selectArticles = (topic, sortBy = 'created_at', order = 'DESC', limit = 10) => {
     let queryString = `SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url, 
     COUNT(comments.article_id) as comment_count 
     FROM articles 
@@ -14,7 +14,7 @@ exports.selectArticles = (topic, sortBy = 'created_at', order = 'DESC') => {
     queryString += 'GROUP BY articles.article_id '
 
     
-    queryString += `ORDER BY articles.${sortBy} ${order};`
+    queryString += `ORDER BY articles.${sortBy} ${order} LIMIT ${limit};`
     
 
     return db.query(queryString, queryValues).then((result) => {

@@ -89,7 +89,7 @@ describe("GET /api/topics", () => {
 describe("GET: /api/articles", () => {
   test("200: returns a list of articles with all properties from the database", () => {
     return request(app)
-      .get("/api/articles")
+      .get("/api/articles?limit=13")
       .expect(200)
       .then((response) => {
         const articles = response.body.articles;
@@ -156,7 +156,7 @@ describe("GET: /api/articles", () => {
   describe('Tests for topic query', () => {
     test('200: The endpoint accepts a query of topic and filters the list by the selected topic', () => {
       return request(app)
-      .get("/api/articles?topic=mitch")
+      .get("/api/articles?topic=mitch&limit=13")
       .expect(200)
       .then((response) => {
         const articles = response.body.articles
@@ -263,6 +263,28 @@ describe("GET: /api/articles", () => {
           expect(article.topic).toBe('mitch')
         })
       })
+    });
+  });
+  describe('Tests for pagination (limit and p query)', () => {
+    test('200: returns a list of articles with a default limit of 10', () => {
+      return request(app)
+      .get('/api/articles')
+      .expect(200)
+      .then((response) => {
+        const articles = response.body.articles;
+        expect(articles.length).toBe(10)
+        articles.forEach((article) => {
+          expect(article).toMatchObject({
+            author: expect.any(String),
+            title: expect.any(String),
+            article_id: expect.any(Number),
+            topic: expect.any(String),
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            article_img_url: expect.any(String),
+          });
+        });
+      });
     });
   });
 });
