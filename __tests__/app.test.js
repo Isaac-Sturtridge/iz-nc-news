@@ -646,3 +646,26 @@ describe('GET: /api/users/:username', () => {
     })
   });
 });
+
+
+describe('PATCH: /api/comments/:comment_id', () => {
+  test('200: should update a comment and return the updated comment with the new number of votes', () => {
+    const updatedCommment = {
+      inc_votes: 1
+    }
+    return request(app)
+    .patch('/api/comments/1')
+    .send(updatedCommment)
+    .expect(200)
+    .then((response) => {
+      const comment = response.body.comment
+      expect(comment).toMatchObject({
+        body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+        votes: 17,
+        author: "butter_bridge",
+        article_id: 9,
+        created_at: "2020-04-06T12:17:00.000Z",
+      })
+    })
+  });
+});
