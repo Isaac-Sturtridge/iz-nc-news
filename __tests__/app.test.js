@@ -761,4 +761,19 @@ describe('POST: /api/articles', () => {
       expect(response.body.msg).toBe('Not found')
     })
   });
+  test('404: cannot post to a topic that does not exist', () => {
+    const newArticle = {
+      title: "I know I'm not supposed to say anything",
+      author: "lurker",
+      body: "But I just can't handle it anymore. Lurking is not using myself to my fullest potential. Dogs are cute.",
+      topic: "dogs",
+    }
+    return request(app)
+    .post('/api/articles')
+    .send(newArticle)
+    .expect(404)
+    .then((response) => {
+      expect(response.body.msg).toBe('Not found')
+    })
+  });
 });
