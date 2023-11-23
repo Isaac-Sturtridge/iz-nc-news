@@ -211,6 +211,15 @@ describe('GET api/articles/:article_id', () => {
             expect(response.body.msg).toBe('Bad request')
         })     
     });
+    test('200: returns the comment count for a single article', () => {
+      return request(app)
+      .get('/api/articles/1')
+      .expect(200)
+      .then((response) => {
+        const article = response.body.article
+        expect(article.comment_count).toBe(11)
+      })
+    });
 });
 
 

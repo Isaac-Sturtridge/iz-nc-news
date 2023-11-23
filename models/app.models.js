@@ -32,7 +32,15 @@ exports.selectArticles = () => {
 }
 
 exports.selectArticleById = (id) => {
-    return db.query(`SELECT * FROM articles WHERE article_id = $1;`, [id]).then((result) => {
+    let queryString = 'SELECT articles.author, articles.title, articles.article_id, articles.body, articles.topic, articles.created_at, articles.votes, articles.article_img_url, '
+    queryString += 'CAST(COUNT(comments.article_id) AS INT) as comment_count FROM articles LEFT JOIN comments ON articles.article_id = comments.article_id '
+    const queryValues = []
+
+    queryString += 'WHERE articles.article_id = $1 '
+    queryValues.push(id)
+
+    queryString += 'GROUP BY articles.article_id ORDER BY articles.created_at DESC;'
+    return db.query(queryString, queryValues).then((result) => {
         if(result.rowCount === 0) {
             return Promise.reject({status: 404, msg: 'Not found'})
         }
