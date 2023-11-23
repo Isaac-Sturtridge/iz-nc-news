@@ -273,7 +273,7 @@ describe('GET api/articles/:article_id', () => {
 describe('GET /api/articles/:article_id/comments', () => {
   test('200: responds with all of the comments for a single article', () => {
       return request(app)
-      .get('/api/article/1/comments')
+      .get('/api/articles/1/comments')
       .expect(200)
       .then((response) => {
           const comments = response.body.comments
@@ -293,7 +293,7 @@ describe('GET /api/articles/:article_id/comments', () => {
   test('200: returns a random articles\' comments', () => {
       const randomId = Math.ceil(Math.random() * 13)
       return request(app)
-      .get(`/api/article/${randomId}/comments`)
+      .get(`/api/articles/${randomId}/comments`)
       .expect(200)
       .then((response) => {
           const comments = response.body.comments
@@ -304,7 +304,7 @@ describe('GET /api/articles/:article_id/comments', () => {
   });
   test('200: returns the most recent comments first', () => {
       return request(app)
-      .get('/api/article/1/comments')
+      .get('/api/articles/1/comments')
       .expect(200)
       .then((response) => {
           const comments = response.body.comments
@@ -313,7 +313,7 @@ describe('GET /api/articles/:article_id/comments', () => {
   });
   test('200: returns an empty array when the article has no comments', () => {
       return request(app)
-      .get('/api/article/4/comments')
+      .get('/api/articles/4/comments')
       .expect(200)
       .then((response) => {
           const comments = response.body.comments
@@ -322,7 +322,7 @@ describe('GET /api/articles/:article_id/comments', () => {
   });
   test('404: returns not found when the article does not exist', () => {
       return request(app)
-      .get('/api/article/100/comments')
+      .get('/api/articles/100/comments')
       .expect(404)
       .then((response) => {
           expect(response.body.msg).toBe('Not found')
@@ -330,7 +330,7 @@ describe('GET /api/articles/:article_id/comments', () => {
   });
   test('400: returns bad request when article_id is not an integer ', () => {
       return request(app)
-      .get('/api/article/not_integer/comments')
+      .get('/api/articles/not_integer/comments')
       .expect(400)
       .then((response) => {
           expect(response.body.msg).toBe('Bad request')
