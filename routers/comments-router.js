@@ -1,4 +1,4 @@
-const { deleteCommentById } = require('../controllers/app.controllers')
+const { deleteCommentById } = require('../controllers/comments.controllers')
 
 const commentsRouter = require('express').Router()
 
