@@ -11,7 +11,7 @@ exports.selectTopics = () => {
     })
 }
 
-exports.selectArticles = (topic) => {
+exports.selectArticles = (topic, sortBy = 'created_at', order = 'DESC') => {
     let queryString = `SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url, 
     COUNT(comments.article_id) as comment_count 
     FROM articles 
@@ -22,9 +22,14 @@ exports.selectArticles = (topic) => {
         queryString += 'WHERE topic = $1 '
         queryValues.push(topic)
     }
+    queryString += 'GROUP BY articles.article_id '
 
-    queryString += 'GROUP BY articles.article_id ORDER BY articles.created_at DESC;'
+    
+    queryString += `ORDER BY articles.${sortBy} ${order};`
+    
+
     return db.query(queryString, queryValues).then((result) => {
+        console.log(result.rows)
         return result.rows
     })
 }

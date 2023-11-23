@@ -192,6 +192,79 @@ describe("GET: /api/articles", () => {
       })
     });
   });
+  describe('Tests for sort_by and order query', () => {
+    test('200: The endpoint accepts a query of sort_by and returns articles sorted by the desired column ', () => {
+      return request(app)
+      .get("/api/articles?sort_by=author")
+      .expect(200)
+      .then((response) => {
+        const articles = response.body.articles;
+        expect(articles).toBeSortedBy('author', {descending: true})
+      })
+    });
+    test('400: should reject any sort_by queries that are not existing columns', () => {
+      return request(app)
+      .get("/api/articles?sort_by=bad_column")
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe('Bad request')
+      })
+    });
+    test('400: rejects SQL injection of sort_by', () => {
+      return request(app)
+      .get("/api/articles?sort_by=author;SELECT * FROM articles;")
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe('Bad request')
+      })
+    });
+    test('200: The endpoint accepts a query of order and returns articles sorted ascending or descending', () => {
+      return request(app)
+      .get("/api/articles?order=asc")
+      .expect(200)
+      .then((response) => {
+        const articles = response.body.articles;
+        expect(articles).toBeSortedBy('created_at', {descending: false})
+      })
+    });
+    test('400: should reject any order queries that are not asc or desc', () => {
+      return request(app)
+      .get("/api/articles?order=bad_order")
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe('Bad request')
+      })
+    });
+    test('400: rejects SQL injection of order', () => {
+      return request(app)
+      .get("/api/articles?order=asc;SELECT * FROM articles;")
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe('Bad request')
+      })
+    });
+    test('200: should work for a combination of order and sort_by', () => {
+      return request(app)
+      .get("/api/articles?sort_by=author&order=asc")
+      .expect(200)
+      .then((response) => {
+        const articles = response.body.articles;
+        expect(articles).toBeSortedBy('author', {descending: false})
+      })
+    });
+    test('200: should allow topic filtering too', () => {
+      return request(app)
+      .get("/api/articles?sort_by=author&order=asc&topic=mitch")
+      .expect(200)
+      .then((response) => {
+        const articles = response.body.articles;
+        expect(articles).toBeSortedBy('author', {descending: false})
+        articles.forEach((article) => {
+          expect(article.topic).toBe('mitch')
+        })
+      })
+    });
+  });
 });
 
 describe('GET api/articles/:article_id', () => {
