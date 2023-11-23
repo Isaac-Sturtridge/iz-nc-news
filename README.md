@@ -4,7 +4,7 @@
 
 This is an API designed for a news site. It can host articles, which accept comments from users. Articles can be voted on and filtered by topic.
 
-Currently available endpoints are listed in app.js.
+Currently available endpoints are listed in endpoints.json. They can also be found through app.js and predominantly in their dedicated sub-router file, with all final routes at this time using '/api' and api-router as an intermediate router. Therefore an example endpoint is 'api/articles/' found in routers/articles-router.js.
 
 The project uses Node, Express and PostgreSQL.
 
