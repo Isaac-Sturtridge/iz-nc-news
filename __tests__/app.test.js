@@ -197,7 +197,7 @@ describe("GET: /api/articles", () => {
 describe('GET api/articles/:article_id', () => {
     test('200: responds with a specific article object which has all necessary properties', () => {
         return request(app)
-        .get('/api/article/1')
+        .get('/api/articles/1')
         .expect(200)
         .then((response) => {
             const article = response.body.article
@@ -216,7 +216,7 @@ describe('GET api/articles/:article_id', () => {
     test('200: responds correctly with a random article', () => {
         const randomId = Math.ceil(Math.random() * 13)
         return request(app)
-        .get(`/api/article/${randomId}`)
+        .get(`/api/articles/${randomId}`)
         .expect(200)
         .then((response) => {
             const article = response.body.article
@@ -234,7 +234,7 @@ describe('GET api/articles/:article_id', () => {
     });
     test('404: returns not found if valid id given but article does not exist', () => {
         return request(app)
-        .get('/api/article/999')
+        .get('/api/articles/999')
         .expect(404)
         .then((response) => {
             expect(response.body.msg).toBe('Not found')
@@ -243,11 +243,29 @@ describe('GET api/articles/:article_id', () => {
 
     test('400: returns bad request if article_id is not an integer', () => {
         return request(app)
-        .get('/api/article/not_an_integer')
+        .get('/api/articles/not_an_integer')
         .expect(400)
         .then((response) => {
             expect(response.body.msg).toBe('Bad request')
         })     
+    });
+    test('200: returns the comment count for a single article', () => {
+      return request(app)
+      .get('/api/articles/1')
+      .expect(200)
+      .then((response) => {
+        const article = response.body.article
+        expect(article.comment_count).toBe(11)
+      })
+    });
+    test('200: returns the comment count for an article with 0 comments', () => {
+      return request(app)
+      .get(`/api/articles/4`)
+      .expect(200)
+      .then((response) => {
+        const article = response.body.article
+        expect(article.comment_count).toBe(0)
+      })
     });
 });
 
