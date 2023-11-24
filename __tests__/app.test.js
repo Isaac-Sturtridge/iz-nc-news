@@ -442,7 +442,7 @@ describe('GET api/articles/:article_id', () => {
 describe('GET /api/articles/:article_id/comments', () => {
   test('200: responds with all of the comments for a single article', () => {
       return request(app)
-      .get('/api/articles/1/comments')
+      .get('/api/articles/1/comments?limit=11')
       .expect(200)
       .then((response) => {
           const comments = response.body.comments
@@ -505,7 +505,89 @@ describe('GET /api/articles/:article_id/comments', () => {
           expect(response.body.msg).toBe('Bad request')
       })
   });
-}); 
+  describe("pagination tests", () => {
+    test("200: returns a list of comments with a default limit of 10", () => {
+      return request(app)
+        .get("/api/articles/1/comments")
+        .expect(200)
+        .then((response) => {
+          const comments = response.body.comments;
+          expect(comments.length).toBe(10);
+          comments.forEach((comment) => {
+            expect(comment).toMatchObject({
+              comment_id: expect.any(Number),
+              votes: expect.any(Number),
+              created_at: expect.any(String),
+              author: expect.any(String),
+              body: expect.any(String),
+              article_id: 1,
+            });
+          });
+        });
+    });
+    test("200: returns a custom limit of comments", () => {
+      return request(app)
+        .get("/api/articles/1/comments?limit=2")
+        .expect(200)
+        .then((response) => {
+          const comments = response.body.comments;
+          expect(comments.length).toBe(2);
+        });
+    });
+    test("200: accepts a page query (p) that defines the page to start at (using the limit). Limit is default in this test - as only 11 comments on article 1 in test data, will return only 3 rather than 10", () => {
+      return request(app)
+        .get("/api/articles/1/comments?p=2")
+        .expect(200)
+        .then((response) => {
+          const comments = response.body.comments;
+          expect(comments.length).toBe(1);
+        });
+    });
+    test("200: accepts a page query and limit query together, showing differently sized pages", () => {
+      return request(app)
+        .get(
+          "/api/articles/1/comments?limit=2&p=2"
+        )
+        .expect(200)
+        .then((response) => {
+          const comments = response.body.comments;
+          expect(comments.length).toBe(2);
+        });
+    });
+    test("400: throws a bad request error if limit is not an integer", () => {
+      return request(app)
+        .get("/api/articles/1/comments?limit=ten;SELECT * FROM comments;")
+        .expect(400)
+        .then((response) => {
+          expect(response.body.msg).toBe("Bad request");
+        });
+    });
+    test("400: throws a bad request error if limit is a negative number", () => {
+      return request(app)
+        .get("/api/articles/1/comments?limit=-5")
+        .expect(400)
+        .then((response) => {
+          expect(response.body.msg).toBe("Bad request");
+        });
+    });
+    test("400: throws a bad request error if page is not an integer", () => {
+      return request(app)
+        .get("/api/articles/1/comments?p=two")
+        .expect(400)
+        .then((response) => {
+          expect(response.body.msg).toBe("Bad request");
+        });
+    });
+    test("400: throws a bad request error if page is a negative number", () => {
+      return request(app)
+        .get("/api/articles/1/comments?p=-5")
+        .expect(400)
+        .then((response) => {
+          expect(response.body.msg).toBe("Bad request");
+        });
+    });
+  });
+});
 
 
 describe('POST /api/articles/:article_id/comments', () => {
