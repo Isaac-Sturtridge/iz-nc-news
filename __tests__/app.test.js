@@ -979,4 +979,50 @@ describe('POST: /api/articles', () => {
       expect(response.body.msg).toBe('Bad request')
     })
   });
+  test('400: should reject an article without one of the properties required (img is not required, author/title/body are)', () => {
+    const newArticle = {
+      title: "I know I'm not supposed to say anything",
+      body: "But I just can't handle it anymore. Lurking is not using myself to my fullest potential. Cats are cute.",
+      topic: "cats",
+    }
+    return request(app)
+    .post('/api/articles')
+    .send(newArticle)
+    .expect(400)
+    .then((response) => {
+      expect(response.body.msg).toBe('Bad request')
+    })
+  });
+});
+
+describe('POST: /api/topics', () => {
+  test('201: successfully adds a new topic ', () => {
+    const newTopic = {
+      "slug": "history",
+      "description": "Napoleon said that 'History is a set of lies agreed upon', prove him wrong"
+    }
+    return request(app)
+    .post('/api/topics')
+    .send(newTopic)
+    .expect(201)
+    .then((response) => {
+      const topic = response.body.topic
+      expect(topic).toMatchObject({
+        "slug": "history",
+        "description": "Napoleon said that 'History is a set of lies agreed upon', prove him wrong"
+      })
+    })
+  });
+  test('400: should reject a topic without a slug (description can be left empty)', () => {
+    const newTopic = {
+      "description": "a description without a slug"
+    }
+    return request(app)
+    .post('/api/topics')
+    .send(newTopic)
+    .expect(400)
+    .then((response) => {
+      expect(response.body.msg).toBe('Bad request')
+    })
+  });
 });
