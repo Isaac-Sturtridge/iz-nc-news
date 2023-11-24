@@ -38,8 +38,9 @@ exports.getArticleById = (req, res, next) => {
 
 exports.getArticleComments = (req, res, next) => {
     const id = req.params.article_id
+    const {limit, p} = req.query
 
-    const allPromises = [selectArticleComments(id), checkIfArticleExists(id)]
+    const allPromises = [selectArticleComments(id, limit, p), checkIfArticleExists(id)]
 
     Promise.all(allPromises).then((result) => {
         const comments = result[0]

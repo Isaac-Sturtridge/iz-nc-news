@@ -44,9 +44,16 @@ exports.selectArticleById = (id) => {
     })
 }
 
-exports.selectArticleComments = (id) => {
-    return db.query(`SELECT * FROM comments WHERE article_id = $1
-    ORDER BY created_at DESC;`, [id])
+exports.selectArticleComments = (id, limit = 10, p = 1) => {
+    let queryString = `SELECT * FROM comments WHERE article_id = $1
+    ORDER BY created_at DESC `
+    const queryValues = [id]
+
+    queryValues.push(limit)
+    queryString += `LIMIT $${queryValues.length} `
+    queryValues.push((p-1) * limit)
+    queryString += `OFFSET $${queryValues.length} `
+    return db.query(queryString, queryValues)
     .then(result => {
         return result.rows
     }) 
