@@ -89,7 +89,7 @@ describe("GET /api/topics", () => {
 describe("GET: /api/articles", () => {
   test("200: returns a list of articles with all properties from the database", () => {
     return request(app)
-      .get("/api/articles")
+      .get("/api/articles?limit=13")
       .expect(200)
       .then((response) => {
         const articles = response.body.articles;
@@ -156,7 +156,7 @@ describe("GET: /api/articles", () => {
   describe('Tests for topic query', () => {
     test('200: The endpoint accepts a query of topic and filters the list by the selected topic', () => {
       return request(app)
-      .get("/api/articles?topic=mitch")
+      .get("/api/articles?topic=mitch&limit=13")
       .expect(200)
       .then((response) => {
         const articles = response.body.articles
@@ -262,6 +262,102 @@ describe("GET: /api/articles", () => {
         articles.forEach((article) => {
           expect(article.topic).toBe('mitch')
         })
+      })
+    });
+  });
+  describe('Tests for pagination (limit and p query)', () => {
+    test('200: returns a list of articles with a default limit of 10', () => {
+      return request(app)
+      .get('/api/articles')
+      .expect(200)
+      .then((response) => {
+        const articles = response.body.articles;
+        expect(articles.length).toBe(10)
+        articles.forEach((article) => {
+          expect(article).toMatchObject({
+            author: expect.any(String),
+            title: expect.any(String),
+            article_id: expect.any(Number),
+            topic: expect.any(String),
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            article_img_url: expect.any(String),
+          });
+        });
+      });
+    });
+    test('200: displays the total count for articles', () => {
+      return request(app)
+      .get('/api/articles?topic=cats&limit=5')
+      .expect(200)
+      .then((response) => {
+        const totalCount = response.body.totalCount;
+        expect(totalCount).toBe(1)
+      })
+    });
+    // TODO: making it so that totalCount ignores limit to fetch the true count of articles (w/filters) seems to require a more involved upheaval of this db.query, will return
+    test('200: returns a custom limit of articles', () => {
+      return request(app)
+      .get('/api/articles?limit=2')
+      .expect(200)
+      .then((response) => {
+        const articles = response.body.articles;
+        expect(articles.length).toBe(2)
+      });
+    });
+    test('200: accepts a page query (p) that defines the page to start at (using the limit). Limit is default in this test - as only 13 articles in test data, will return only 3 rather than 10', () => {
+      return request(app)
+      .get('/api/articles?sort_by=article_id&order=asc&p=2')
+      .expect(200)
+      .then((response) => {
+        const articles = response.body.articles;
+        expect(articles.length).toBe(3)
+        expect(articles[0].article_id).toBe(11)
+        expect(articles[1].article_id).toBe(12)
+        expect(articles[2].article_id).toBe(13)
+      })
+    });
+    test('200: accepts a page query and limit query together, showing differently sized pages', () => {
+      return request(app)
+      .get('/api/articles?sort_by=article_id&order=asc&limit=2&p=2')
+      .expect(200)
+      .then((response) => {
+        const articles = response.body.articles;
+        expect(articles.length).toBe(2)
+        expect(articles[0].article_id).toBe(3)
+        expect(articles[1].article_id).toBe(4)
+      })
+    });
+    test('400: throws a bad request error if limit is not an integer', () => {
+      return request(app)
+      .get('/api/articles?limit=ten;SELECT * FROM comments;')
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe('Bad request')
+      })
+    });
+    test('400: throws a bad request error if limit is a negative number', () => {
+      return request(app)
+      .get('/api/articles?limit=-5')
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe('Bad request')
+      })
+    });
+    test('400: throws a bad request error if page is not an integer', () => {
+      return request(app)
+      .get('/api/articles?p=two')
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe('Bad request')
+      })
+    });
+    test('400: throws a bad request error if page is a negative number', () => {
+      return request(app)
+      .get('/api/articles?p=-5')
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe('Bad request')
       })
     });
   });
