@@ -2,7 +2,7 @@ const { selectArticleById, selectArticleComments, checkIfArticleExists, selectAr
 const { checkIfTopicExists } = require("../models/topics.models");
 
 exports.getArticles = (req, res, next) => {
-    const {topic, sort_by: sortBy, order, limit} = req.query
+    const {topic, sort_by: sortBy, order, limit, p} = req.query
 
     const sortByWhitelist = ["article_id", "title", "topic", "author", "body", "created_at", "votes", "article_img_url"]
     
@@ -16,7 +16,7 @@ exports.getArticles = (req, res, next) => {
         return res.status(400).send({msg: 'Bad request'})
     }
 
-    const allPromises = [selectArticles(topic, sortBy, order, limit)]
+    const allPromises = [selectArticles(topic, sortBy, order, limit, p)]
 
     if(topic) {
         allPromises.push(checkIfTopicExists(topic))

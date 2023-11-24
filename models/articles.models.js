@@ -1,6 +1,6 @@
 const db = require('../db/connection')
 
-exports.selectArticles = (topic, sortBy = 'created_at', order = 'DESC', limit = 10) => {
+exports.selectArticles = (topic, sortBy = 'created_at', order = 'DESC', limit = 10, p = 1) => {
     let queryString = `SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url, 
     COUNT(comments.article_id) as comment_count 
     FROM articles 
@@ -8,15 +8,19 @@ exports.selectArticles = (topic, sortBy = 'created_at', order = 'DESC', limit = 
     const queryValues = []
 
     if(topic) {
-        queryString += 'WHERE topic = $1 '
         queryValues.push(topic)
+        queryString += `WHERE topic = $${queryValues.length} `
     }
     queryString += 'GROUP BY articles.article_id '
 
     
-    queryString += `ORDER BY articles.${sortBy} ${order} LIMIT ${limit};`
+    queryString += `ORDER BY articles.${sortBy} ${order} `
     
-
+    queryValues.push(limit)
+    queryString += `LIMIT $${queryValues.length} `
+    queryValues.push((p-1) * limit)
+    queryString += `OFFSET $${queryValues.length} `
+    
     return db.query(queryString, queryValues).then((result) => {
         return result.rows
     })
