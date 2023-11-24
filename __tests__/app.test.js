@@ -58,6 +58,8 @@ describe("GET /api", () => {
   });
 });
 
+
+// Topics tests
 describe("GET /api/topics", () => {
   test("200: returns a 200 status code", () => {
     return request(app).get("/api/topics").expect(200);
@@ -86,6 +88,40 @@ describe("GET /api/topics", () => {
   });
 });
 
+describe('POST: /api/topics', () => {
+  test('201: successfully adds a new topic ', () => {
+    const newTopic = {
+      "slug": "history",
+      "description": "Napoleon said that 'History is a set of lies agreed upon', prove him wrong"
+    }
+    return request(app)
+    .post('/api/topics')
+    .send(newTopic)
+    .expect(201)
+    .then((response) => {
+      const topic = response.body.topic
+      expect(topic).toMatchObject({
+        "slug": "history",
+        "description": "Napoleon said that 'History is a set of lies agreed upon', prove him wrong"
+      })
+    })
+  });
+  test('400: should reject a topic without a slug (description can be left empty)', () => {
+    const newTopic = {
+      "description": "a description without a slug"
+    }
+    return request(app)
+    .post('/api/topics')
+    .send(newTopic)
+    .expect(400)
+    .then((response) => {
+      expect(response.body.msg).toBe('Bad request')
+    })
+  });
+});
+
+
+// Article tests
 describe("GET: /api/articles", () => {
   test("200: returns a list of articles with all properties from the database", () => {
     return request(app)
@@ -371,6 +407,97 @@ describe("GET: /api/articles", () => {
   });
 });
 
+describe('POST: /api/articles', () => {
+  test('201: successfully adds a new article', () => {
+    const newArticle = {
+      title: "I know I'm not supposed to say anything",
+      author: "lurker",
+      body: "But I just can't handle it anymore. Lurking is not using myself to my fullest potential. Cats are cute.",
+      topic: "cats",
+      article_img_url: 'https://images.pexels.com/photos/1543793/pexels-photo-1543793.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
+    }
+    return request(app)
+    .post('/api/articles')
+    .send(newArticle)
+    .expect(201)
+    .then((response) => {
+      const article = response.body.article
+      expect(article).toMatchObject({
+        title: "I know I'm not supposed to say anything",
+        author: "lurker",
+        body: "But I just can't handle it anymore. Lurking is not using myself to my fullest potential. Cats are cute.",
+        topic: "cats",
+        article_img_url: "https://images.pexels.com/photos/1543793/pexels-photo-1543793.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+        votes: 0,
+        article_id: 14,
+        created_at: expect.any(String),
+        comment_count: 0
+      })
+    })
+  });
+  test('404: cannot post for an author that does not exist', () => {
+    const newArticle = {
+      title: "I know I'm not supposed to say anything",
+      author: "tabularasa",
+      body: "But I just can't handle it anymore. Lurking is not using myself to my fullest potential. Cats are cute.",
+      topic: "cats",
+    }
+    return request(app)
+    .post('/api/articles')
+    .send(newArticle)
+    .expect(404)
+    .then((response) => {
+      expect(response.body.msg).toBe('Not found')
+    })
+  });
+  test('404: cannot post to a topic that does not exist', () => {
+    const newArticle = {
+      title: "I know I'm not supposed to say anything",
+      author: "lurker",
+      body: "But I just can't handle it anymore. Lurking is not using myself to my fullest potential. Dogs are cute.",
+      topic: "dogs",
+    }
+    return request(app)
+    .post('/api/articles')
+    .send(newArticle)
+    .expect(404)
+    .then((response) => {
+      expect(response.body.msg).toBe('Not found')
+    })
+  });
+  test('400: returns bad request if given an article_img_url that is not an image', () => {
+    const newArticle = {
+      title: "I know I'm not supposed to say anything",
+      author: "tabularasa",
+      body: "But I just can't handle it anymore. Lurking is not using myself to my fullest potential. Cats are cute.",
+      topic: "cats",
+      article_img_url: "not_an_image"
+    }
+    return request(app)
+    .post('/api/articles')
+    .send(newArticle)
+    .expect(400)
+    .then((response) => {
+      expect(response.body.msg).toBe('Bad request')
+    })
+  });
+  test('400: should reject an article without one of the properties required (img is not required, author/title/body are)', () => {
+    const newArticle = {
+      title: "I know I'm not supposed to say anything",
+      body: "But I just can't handle it anymore. Lurking is not using myself to my fullest potential. Cats are cute.",
+      topic: "cats",
+    }
+    return request(app)
+    .post('/api/articles')
+    .send(newArticle)
+    .expect(400)
+    .then((response) => {
+      expect(response.body.msg).toBe('Bad request')
+    })
+  });
+});
+
+// Article by id tests
 describe('GET api/articles/:article_id', () => {
     test('200: responds with a specific article object which has all necessary properties', () => {
         return request(app)
@@ -446,7 +573,108 @@ describe('GET api/articles/:article_id', () => {
     });
 });
 
+describe('PATCH: /api/articles/:article_id', () => {
+  test('200: should update an article and return the updated article with the new number of votes', () => {
+    const updatedArticle = {
+      inc_votes: 1
+    }
+    return request(app)
+    .patch('/api/articles/1')
+    .send(updatedArticle)
+    .expect(200)
+    .then((response) => {
+      const article = response.body.article
+      expect(article).toMatchObject({
+        author: "butter_bridge",
+        title: "Living in the shadow of a great man",
+        article_id: 1,
+        body: "I find this existence challenging",
+        topic: "mitch",
+        created_at: "2020-07-09T20:11:00.000Z",
+        votes: 101,
+        article_img_url: "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+    })
+    })
+  });
+  test('200: can also decrement votes', () => {
+    const updatedArticle = {
+      inc_votes: -100
+    }
+    return request(app)
+    .patch('/api/articles/1')
+    .send(updatedArticle)
+    .expect(200)
+    .then((response) => {
+      const article = response.body.article
+      expect(article.votes).toBe(0)
+    })
+  });
+  // no error if votes go below zero
+  test('404: article is a valid input but does not exist', () => {
+    const updatedArticle = {
+      inc_votes: 1
+    }
+    return request(app)
+    .patch('/api/articles/999')
+    .send(updatedArticle)
+    .expect(404)
+    .then((response) => {
+      expect(response.body.msg).toBe('Not found')
+    })
+  });
+  test('400: article is not a valid input', () => {
+    const updatedArticle = {
+      inc_votes: 1
+    }
+    return request(app)
+    .patch('/api/articles/not_integer')
+    .send(updatedArticle)
+    .expect(400)
+    .then((response) => {
+      expect(response.body.msg).toBe('Bad request')
+    })
+  });
+  // invalid inc_votes 
+  test('400: inc_votes is in an invalid format', () => {
+    const updatedArticle = {
+      inc_votes: 'cat'
+    }
+    return request(app)
+    .patch('/api/articles/1')
+    .send(updatedArticle)
+    .expect(400)
+    .then((response) => {
+      expect(response.body.msg).toBe('Bad request')
+    })
+  });
+});
 
+
+describe('DELETE: /api/articles/:article_id', () => {
+  test('204: should successfully delete an article and all comments associated with it', () => {
+    return request(app)
+    .delete('/api/articles/1')
+    .expect(204)
+  });
+  test('404: the article has a valid id but does not exist', () => {
+    return request(app)
+    .delete('/api/articles/999')
+    .expect(404)
+    .then((response) => {
+      expect(response.body.msg).toBe('Not found')
+    })
+  });
+  test('400: should respond with a bad request when the article is not a valid id', () => {
+    return request(app)
+    .delete('/api/articles/bad_article_id')
+    .expect(400)
+    .then((response) => {
+      expect(response.body.msg).toBe('Bad request')
+    })
+  });
+});
+
+// Comments (through article) tests
 describe('GET /api/articles/:article_id/comments', () => {
   test('200: responds with all of the comments for a single article', () => {
       return request(app)
@@ -597,7 +825,6 @@ describe('GET /api/articles/:article_id/comments', () => {
   });
 });
 
-
 describe('POST /api/articles/:article_id/comments', () => {
   test('201: successfully adds a new comment to the specified article', () => {
     const input = {
@@ -688,152 +915,8 @@ describe('POST /api/articles/:article_id/comments', () => {
   });
 });
 
-describe('PATCH: /api/articles/:article_id', () => {
-  test('200: should update an article and return the updated article with the new number of votes', () => {
-    const updatedArticle = {
-      inc_votes: 1
-    }
-    return request(app)
-    .patch('/api/articles/1')
-    .send(updatedArticle)
-    .expect(200)
-    .then((response) => {
-      const article = response.body.article
-      expect(article).toMatchObject({
-        author: "butter_bridge",
-        title: "Living in the shadow of a great man",
-        article_id: 1,
-        body: "I find this existence challenging",
-        topic: "mitch",
-        created_at: "2020-07-09T20:11:00.000Z",
-        votes: 101,
-        article_img_url: "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
-    })
-    })
-  });
-  test('200: can also decrement votes', () => {
-    const updatedArticle = {
-      inc_votes: -100
-    }
-    return request(app)
-    .patch('/api/articles/1')
-    .send(updatedArticle)
-    .expect(200)
-    .then((response) => {
-      const article = response.body.article
-      expect(article.votes).toBe(0)
-    })
-  });
-  // no error if votes go below zero
-  test('404: article is a valid input but does not exist', () => {
-    const updatedArticle = {
-      inc_votes: 1
-    }
-    return request(app)
-    .patch('/api/articles/999')
-    .send(updatedArticle)
-    .expect(404)
-    .then((response) => {
-      expect(response.body.msg).toBe('Not found')
-    })
-  });
-  test('400: article is not a valid input', () => {
-    const updatedArticle = {
-      inc_votes: 1
-    }
-    return request(app)
-    .patch('/api/articles/not_integer')
-    .send(updatedArticle)
-    .expect(400)
-    .then((response) => {
-      expect(response.body.msg).toBe('Bad request')
-    })
-  });
-  // invalid inc_votes 
-  test('400: inc_votes is in an invalid format', () => {
-    const updatedArticle = {
-      inc_votes: 'cat'
-    }
-    return request(app)
-    .patch('/api/articles/1')
-    .send(updatedArticle)
-    .expect(400)
-    .then((response) => {
-      expect(response.body.msg).toBe('Bad request')
-    })
-  });
-});
 
-describe('DELETE: /api/comments/:comment_id', () => {
-  test('204: should successfully delete a comment', () => {
-    return request(app)
-    .delete('/api/comments/1')
-    .expect(204)
-  });
-  test('404: the comment is a valid id but it does not exist', () => {
-    return request(app)
-    .delete('/api/comments/999')
-    .expect(404)
-    .then((response) => {
-      expect(response.body.msg).toBe('Not found')
-    })
-  });
-  test('400: should respond with a bad request when the comment is not a valid id', () => {
-    return request(app)
-    .delete('/api/comments/bad_comment_id')
-    .expect(400)
-    .then((response) => {
-      expect(response.body.msg).toBe('Bad request')
-    })
-  });
-});
-
-
-describe('GET: /api/users', () => {
-  test('200: returns a list of all users', () => {
-    return request(app)
-    .get('/api/users')
-    .expect(200)
-    .then((response) => {
-      const users = response.body.users
-      expect(users.length).toBe(4)
-      users.forEach((user) => {
-        expect(user).toMatchObject({
-          username: expect.any(String),
-          name: expect.any(String),
-          avatar_url: expect.any(String)
-        })
-      })
-    })
-  });
-  // as with GET articles, errors should only occur once we have queries
-});
-
-describe('GET: /api/users/:username', () => {
-  test('200: returns a complete username object', () => {
-    return request(app)
-    .get('/api/users/icellusedkars')
-    .expect(200)
-    .then((response) => {
-      const user = response.body.user
-      expect(user).toMatchObject({
-        username: 'icellusedkars',
-        name: 'sam',
-        avatar_url: 'https://avatars2.githubusercontent.com/u/24604688?s=460&v=4'
-      })
-    })
-  });
-  test('404: returns not found when the username does not exist', () => {
-    return request(app)
-    .get('/api/users/tabularasa')
-    .expect(404)
-    .then((response) => {
-      expect(response.body.msg).toBe('Not found')
-    })
-  });
-});
-
-
+// Comments (through /comment route) tests
 describe('PATCH: /api/comments/:comment_id', () => {
   test('200: should update a comment and return the updated comment with the new number of votes', () => {
     const updatedComment = {
@@ -905,148 +988,74 @@ describe('PATCH: /api/comments/:comment_id', () => {
   });
 });
 
-describe('POST: /api/articles', () => {
-  test('201: successfully adds a new article', () => {
-    const newArticle = {
-      title: "I know I'm not supposed to say anything",
-      author: "lurker",
-      body: "But I just can't handle it anymore. Lurking is not using myself to my fullest potential. Cats are cute.",
-      topic: "cats",
-      article_img_url: 'https://images.pexels.com/photos/1543793/pexels-photo-1543793.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
-    }
-    return request(app)
-    .post('/api/articles')
-    .send(newArticle)
-    .expect(201)
-    .then((response) => {
-      const article = response.body.article
-      expect(article).toMatchObject({
-        title: "I know I'm not supposed to say anything",
-        author: "lurker",
-        body: "But I just can't handle it anymore. Lurking is not using myself to my fullest potential. Cats are cute.",
-        topic: "cats",
-        article_img_url: "https://images.pexels.com/photos/1543793/pexels-photo-1543793.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-        votes: 0,
-        article_id: 14,
-        created_at: expect.any(String),
-        comment_count: 0
-      })
-    })
-  });
-  test('404: cannot post for an author that does not exist', () => {
-    const newArticle = {
-      title: "I know I'm not supposed to say anything",
-      author: "tabularasa",
-      body: "But I just can't handle it anymore. Lurking is not using myself to my fullest potential. Cats are cute.",
-      topic: "cats",
-    }
-    return request(app)
-    .post('/api/articles')
-    .send(newArticle)
-    .expect(404)
-    .then((response) => {
-      expect(response.body.msg).toBe('Not found')
-    })
-  });
-  test('404: cannot post to a topic that does not exist', () => {
-    const newArticle = {
-      title: "I know I'm not supposed to say anything",
-      author: "lurker",
-      body: "But I just can't handle it anymore. Lurking is not using myself to my fullest potential. Dogs are cute.",
-      topic: "dogs",
-    }
-    return request(app)
-    .post('/api/articles')
-    .send(newArticle)
-    .expect(404)
-    .then((response) => {
-      expect(response.body.msg).toBe('Not found')
-    })
-  });
-  test('400: returns bad request if given an article_img_url that is not an image', () => {
-    const newArticle = {
-      title: "I know I'm not supposed to say anything",
-      author: "tabularasa",
-      body: "But I just can't handle it anymore. Lurking is not using myself to my fullest potential. Cats are cute.",
-      topic: "cats",
-      article_img_url: "not_an_image"
-    }
-    return request(app)
-    .post('/api/articles')
-    .send(newArticle)
-    .expect(400)
-    .then((response) => {
-      expect(response.body.msg).toBe('Bad request')
-    })
-  });
-  test('400: should reject an article without one of the properties required (img is not required, author/title/body are)', () => {
-    const newArticle = {
-      title: "I know I'm not supposed to say anything",
-      body: "But I just can't handle it anymore. Lurking is not using myself to my fullest potential. Cats are cute.",
-      topic: "cats",
-    }
-    return request(app)
-    .post('/api/articles')
-    .send(newArticle)
-    .expect(400)
-    .then((response) => {
-      expect(response.body.msg).toBe('Bad request')
-    })
-  });
-});
 
-describe('POST: /api/topics', () => {
-  test('201: successfully adds a new topic ', () => {
-    const newTopic = {
-      "slug": "history",
-      "description": "Napoleon said that 'History is a set of lies agreed upon', prove him wrong"
-    }
+describe('DELETE: /api/comments/:comment_id', () => {
+  test('204: should successfully delete a comment', () => {
     return request(app)
-    .post('/api/topics')
-    .send(newTopic)
-    .expect(201)
-    .then((response) => {
-      const topic = response.body.topic
-      expect(topic).toMatchObject({
-        "slug": "history",
-        "description": "Napoleon said that 'History is a set of lies agreed upon', prove him wrong"
-      })
-    })
-  });
-  test('400: should reject a topic without a slug (description can be left empty)', () => {
-    const newTopic = {
-      "description": "a description without a slug"
-    }
-    return request(app)
-    .post('/api/topics')
-    .send(newTopic)
-    .expect(400)
-    .then((response) => {
-      expect(response.body.msg).toBe('Bad request')
-    })
-  });
-});
-
-describe('DELETE: /api/articles/:article_id', () => {
-  test('204: should successfully delete an article and all comments associated with it', () => {
-    return request(app)
-    .delete('/api/articles/1')
+    .delete('/api/comments/1')
     .expect(204)
   });
-  test('404: the article has a valid id but does not exist', () => {
+  test('404: the comment is a valid id but it does not exist', () => {
     return request(app)
-    .delete('/api/articles/999')
+    .delete('/api/comments/999')
     .expect(404)
     .then((response) => {
       expect(response.body.msg).toBe('Not found')
     })
   });
-  test('400: should respond with a bad request when the article is not a valid id', () => {
+  test('400: should respond with a bad request when the comment is not a valid id', () => {
     return request(app)
-    .delete('/api/articles/bad_article_id')
+    .delete('/api/comments/bad_comment_id')
     .expect(400)
     .then((response) => {
       expect(response.body.msg).toBe('Bad request')
     })
   });
 });
+
+
+// Users tests
+describe('GET: /api/users', () => {
+  test('200: returns a list of all users', () => {
+    return request(app)
+    .get('/api/users')
+    .expect(200)
+    .then((response) => {
+      const users = response.body.users
+      expect(users.length).toBe(4)
+      users.forEach((user) => {
+        expect(user).toMatchObject({
+          username: expect.any(String),
+          name: expect.any(String),
+          avatar_url: expect.any(String)
+        })
+      })
+    })
+  });
+  // as with GET articles, errors should only occur once we have queries
+});
+
+describe('GET: /api/users/:username', () => {
+  test('200: returns a complete username object', () => {
+    return request(app)
+    .get('/api/users/icellusedkars')
+    .expect(200)
+    .then((response) => {
+      const user = response.body.user
+      expect(user).toMatchObject({
+        username: 'icellusedkars',
+        name: 'sam',
+        avatar_url: 'https://avatars2.githubusercontent.com/u/24604688?s=460&v=4'
+      })
+    })
+  });
+  test('404: returns not found when the username does not exist', () => {
+    return request(app)
+    .get('/api/users/tabularasa')
+    .expect(404)
+    .then((response) => {
+      expect(response.body.msg).toBe('Not found')
+    })
+  });
+});
+
