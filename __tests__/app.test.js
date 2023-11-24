@@ -1026,3 +1026,27 @@ describe('POST: /api/topics', () => {
     })
   });
 });
+
+describe('DELETE: /api/articles/:article_id', () => {
+  test('204: should successfully delete an article and all comments associated with it', () => {
+    return request(app)
+    .delete('/api/articles/1')
+    .expect(204)
+  });
+  test('404: the article has a valid id but does not exist', () => {
+    return request(app)
+    .delete('/api/articles/999')
+    .expect(404)
+    .then((response) => {
+      expect(response.body.msg).toBe('Not found')
+    })
+  });
+  test('400: should respond with a bad request when the article is not a valid id', () => {
+    return request(app)
+    .delete('/api/articles/bad_article_id')
+    .expect(400)
+    .then((response) => {
+      expect(response.body.msg).toBe('Bad request')
+    })
+  });
+});
