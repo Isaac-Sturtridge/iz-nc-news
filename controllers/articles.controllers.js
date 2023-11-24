@@ -24,7 +24,8 @@ exports.getArticles = (req, res, next) => {
 
     Promise.all(allPromises).then((result) => {
         const articles = result[0]
-        return res.status(200).send({articles})
+        const totalCount = articles.length
+        return res.status(200).send({articles, totalCount})
     }).catch(next)
 }
 
