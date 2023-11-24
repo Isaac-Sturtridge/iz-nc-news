@@ -120,6 +120,18 @@
         }
     }
   },
+  "DELETE /api/articles/:article_id": {
+    "description": "deletes the specified article",
+    "queries": [],
+    "exampleResponse":{
+     ":article_id": [
+        {
+  
+        }
+      ]
+    }
+     
+  },
   "PATCH /api/comments/:comment_id": {
     "description": "updates the number of votes for the given comment and returns that comment",
     "queries": [],
