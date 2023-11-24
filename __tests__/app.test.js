@@ -295,7 +295,15 @@ describe("GET: /api/articles", () => {
         expect(totalCount).toBe(1)
       })
     });
-    // TODO: making it so that totalCount ignores limit to fetch the true count of articles (w/filters) seems to require a more involved upheaval of this db.query, will return
+    test('200: displays the total count for articles even when limit does not return full amount', () => {
+      return request(app)
+      .get('/api/articles?topic=mitch&limit=5')
+      .expect(200)
+      .then((response) => {
+        const totalCount = response.body.totalCount;
+        expect(totalCount).toBe(12)
+      })
+    });
     test('200: returns a custom limit of articles', () => {
       return request(app)
       .get('/api/articles?limit=2')

@@ -110,3 +110,12 @@ exports.updateArticle = (votes, id) => {
         return result.rows[0]
     })
 }
+
+exports.getOriginalArticleCount = (topic) => {
+    if(topic) {
+        return db.query(`SELECT * FROM articles WHERE topic = $1`, [topic])
+    }
+    return db.query(`SELECT * FROM articles`).then((result) => {
+        return result
+    })
+}

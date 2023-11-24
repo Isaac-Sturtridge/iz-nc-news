@@ -1,4 +1,4 @@
-const { selectArticleById, selectArticleComments, checkIfArticleExists, selectArticles, insertArticle, updateArticle } = require("../models/articles.models");
+const { selectArticleById, selectArticleComments, checkIfArticleExists, selectArticles, insertArticle, updateArticle, getOriginalArticleCount } = require("../models/articles.models");
 const { checkIfTopicExists } = require("../models/topics.models");
 
 exports.getArticles = (req, res, next) => {
@@ -18,13 +18,14 @@ exports.getArticles = (req, res, next) => {
 
     const allPromises = [selectArticles(topic, sortBy, order, limit, p)]
 
+    allPromises.push(getOriginalArticleCount(topic))
     if(topic) {
         allPromises.push(checkIfTopicExists(topic))
-    }
+    } 
 
     Promise.all(allPromises).then((result) => {
         const articles = result[0]
-        const totalCount = articles.length
+        const totalCount = result[1].rows.length
         return res.status(200).send({articles, totalCount})
     }).catch(next)
 }
