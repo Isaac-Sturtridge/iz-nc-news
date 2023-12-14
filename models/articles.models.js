@@ -13,8 +13,11 @@ exports.selectArticles = (topic, sortBy = 'created_at', order = 'DESC', limit = 
     }
     queryString += 'GROUP BY articles.article_id '
 
-    
-    queryString += `ORDER BY articles.${sortBy} ${order} `
+    if(sortBy === "comment_count") {
+        queryString += `ORDER BY comment_count ${order}`
+    } else {
+        queryString += `ORDER BY articles.${sortBy} ${order} `
+    }
     
     queryValues.push(limit)
     queryString += `LIMIT $${queryValues.length} `
