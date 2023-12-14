@@ -151,11 +151,11 @@ describe("GET: /api/articles", () => {
         const articles = response.body.articles;
         // hardcoded from a query to the test database, this won't change as tests are built up
         const arrayOfCommentCounts = [
-          { article_id: 5, comment_count: "2" },
-          { article_id: 6, comment_count: "1" },
-          { article_id: 1, comment_count: "11" },
-          { article_id: 9, comment_count: "2" },
-          { article_id: 3, comment_count: "2" },
+          { article_id: 5, comment_count: 2 },
+          { article_id: 6, comment_count: 1 },
+          { article_id: 1, comment_count: 11 },
+          { article_id: 9, comment_count: 2 },
+          { article_id: 3, comment_count: 2 },
         ];
         articles.forEach((article) => {
           const currentArticleComments = arrayOfCommentCounts.find(
@@ -164,7 +164,7 @@ describe("GET: /api/articles", () => {
           if (currentArticleComments) {
             expect(article.comment_count).toBe(currentArticleComments["comment_count"]);
           } else {
-            expect(article.comment_count).toBe("0");
+            expect(article.comment_count).toBe(0);
           }
         });
       });
@@ -236,6 +236,15 @@ describe("GET: /api/articles", () => {
       .then((response) => {
         const articles = response.body.articles;
         expect(articles).toBeSortedBy('author', {descending: true})
+      })
+    });
+    test('200: Can sort by comment_count', () => {
+      return request(app)
+      .get("/api/articles?sort_by=comment_count")
+      .expect(200)
+      .then((response) => {
+        const articles = response.body.articles;
+        expect(articles).toBeSortedBy('comment_count', {descending: true})
       })
     });
     test('400: should reject any sort_by queries that are not existing columns', () => {

@@ -2,7 +2,7 @@ const db = require('../db/connection')
 
 exports.selectArticles = (topic, sortBy = 'created_at', order = 'DESC', limit = 10, p = 1) => {
     let queryString = `SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url, 
-    COUNT(comments.article_id) as comment_count 
+    CAST(COUNT(comments.article_id) AS INT) AS comment_count 
     FROM articles 
     LEFT JOIN comments ON articles.article_id = comments.article_id `
     const queryValues = []
@@ -12,9 +12,8 @@ exports.selectArticles = (topic, sortBy = 'created_at', order = 'DESC', limit = 
         queryString += `WHERE topic = $${queryValues.length} `
     }
     queryString += 'GROUP BY articles.article_id '
-
     if(sortBy === "comment_count") {
-        queryString += `ORDER BY comment_count ${order}`
+        queryString += `ORDER BY comment_count ${order} `
     } else {
         queryString += `ORDER BY articles.${sortBy} ${order} `
     }
